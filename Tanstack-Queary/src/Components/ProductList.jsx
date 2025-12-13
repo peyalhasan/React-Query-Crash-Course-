@@ -1,22 +1,32 @@
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
+import { useContext } from "react";
+import ProductContext from "../Context";
 
-const retriveProducts = async ({queryKey}) => {
+const retriveProducts = async ({ queryKey }) => {
     const response = await axios.get(`http://localhost:8000/${queryKey[0]}`);
     return response.data;
 }
 
 const ProductList = () => {
+
+    const { productId, setProductId } = useContext(ProductContext)
+
     const { data: products, error, isLoading } = useQuery({
         queryKey: ['products'],
         queryFn: retriveProducts,
         retry: false,
-        staleTime: 5000,
+        // refetchInterval: 1000,
     })
 
     if (isLoading) return <div>Fetching Products....</div>
 
     if (error) return <div>An error occured {error.message} </div>
+
+    function handleShow(id) {
+        setProductId(prevId => (prevId === id ? null : id));
+    }
+
 
     return (
         <div className=" flex flex-col justify-center items-center w-3/5  ">
@@ -29,6 +39,7 @@ const ProductList = () => {
                             <p className="text-xl my-3">
                                 {product.title}
                             </p>
+                            <button onClick={() => handleShow(product.id)} className=" btn bg-green-400 text-xl rounded-lg p-2 mb-2" > {product.id === productId ? 'Hide' : 'Show'} </button>
                         </li>
                     ))
                 }
