@@ -1,0 +1,12 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "This is mock API Server created with json server",
+  "license": "ISC",
+  "author": "PH",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "json-server -p 8000 --watch ./database/data.json"
+  }
+}
