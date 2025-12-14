@@ -7,31 +7,31 @@ import { useState } from "react";
 const AddProduct = () => {
     const queryClient = useQueryClient()
 
-    const [state, setState] = useState({
+    const initialState = {
         title: "",
         description: "",
         price: 0,
         rating: 5,
         thumbnail: "",
-    })
+    }
+
+    const [state, setState] = useState(initialState)
 
     const mutation = useMutation({
         mutationFn: (newProduct) => axios.post("http://localhost:8000/products", newProduct),
-        onSuccess: (data, variables, context) => {
-            console.log(context);
-            
+        onSuccess: () => {
+
             queryClient.invalidateQueries(["products"])
+            setState(initialState)
         },
-        onMutate: (variables) =>{
-            return {greeting: 'Say Hello' }
-        }
+       
     })
 
 
     function submitData(e) {
         e.preventDefault();
         const newData = { ...state, id: crypto.randomUUID().toString() }
-        mutation.mutate(newData)
+        mutation.mutate(newData);
 
     }
 
@@ -45,11 +45,14 @@ const AddProduct = () => {
         })
     }
 
+    if (mutation.isLoading) return <span>Submitting...</span>
+    if (mutation.isError) return <span> {mutation.error.message} </span>
+
 
     return (
         <div className="m-2 p-2 bg-gray-100 w-1/5 h-1/2">
             <h2 className="text-2xl my-2">Add a Product</h2>
-            {<p>Product Added!</p>}
+            {mutation.isSuccess && <p>Product Added!</p>}
             <form className="flex flex-col" onSubmit={submitData}>
                 <input
                     type="text"
