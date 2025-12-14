@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useContext, useState } from "react";
 import ProductContext from "../Context";
 
@@ -10,16 +10,32 @@ const retriveProducts = async ({ queryKey }) => {
 
 const ProductList = () => {
 
+    const queryClient = useQueryClient()
     const [page, setPage] = useState(1)
 
     const { productId, setProductId } = useContext(ProductContext)
 
     const { data: products, error, isLoading } = useQuery({
-        queryKey: ['products',{page}],
+        queryKey: ['products', { page }],
         queryFn: retriveProducts,
         retry: false,
         // refetchInterval: 1000,
     })
+
+    // Delete 
+    const mutation = useMutation({
+       mutationFn: (id)=>axios.delete(`http://localhost:8000/products/${id}`),
+       onSuccess: () =>{
+        queryClient.invalidateQueries("products")
+       }
+    })
+
+
+    const handleDelete = (id) => {
+    
+        mutation.mutate(id)
+
+    }
 
     if (isLoading) return <div>Fetching Products....</div>
 
@@ -37,6 +53,7 @@ const ProductList = () => {
                 {
                     products.data && products.data.map(product => (
                         <li key={product.id} className=" flex flex-col items-center m-2 border rounded-sm ">
+                            <button onClick={() => handleDelete(product.id)} className=" self-end " >❌</button>
                             <img className=" object-cover h-64 w-96 rounded-sm " src={product.thumbnail} alt={product.title} />
                             <p className="text-xl my-3">
                                 {product.title}
@@ -50,16 +67,16 @@ const ProductList = () => {
                 {
                     products.prev && (
                         <button
-                        className=" p-1 mx-1 bg-gray-100 border cursor-pointer rounded-sm " 
-                        onClick={()=>setPage(products.prev)}
+                            className=" p-1 mx-1 bg-gray-100 border cursor-pointer rounded-sm "
+                            onClick={() => setPage(products.prev)}
                         >Prev</button>
                     )
                 }
                 {
                     products.next && (
                         <button
-                        className=" p-1 mx-1 bg-gray-100 border cursor-pointer rounded-sm " 
-                        onClick={()=>setPage(products.next)}
+                            className=" p-1 mx-1 bg-gray-100 border cursor-pointer rounded-sm "
+                            onClick={() => setPage(products.next)}
                         >Next</button>
                     )
                 }
