@@ -11,7 +11,6 @@ const retriveProduct = async ({ queryKey }) => {
 const ProductDetails = ({ id }) => {
 
     const { productId } = useContext(ProductContext)
-    console.log(productId)
 
     const { data: product, error, isLoading } = useQuery({
         queryKey: ['products', id],

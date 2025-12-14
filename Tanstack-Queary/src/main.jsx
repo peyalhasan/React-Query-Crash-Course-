@@ -9,7 +9,7 @@ import ProductContextProvider from './Provider/ProductContextProvider.jsx'
 const quearClient = new QueryClient({
   defaultOptions:{
     queries:{
-      // staleTime: 5000,
+      staleTime: 3000,
     }
   }
 })
